@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>登录/注册</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-image: url('/static/mountain.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            width: 240px;
+            margin-left: 4cm;
+            backdrop-filter: blur(5px);
+        }
+        .welcome-text {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 36px;
+            font-weight: bold;
+        }
+        .form-group {
+            margin-bottom: 22px;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-top: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            box-sizing: border-box;
+            background-color: rgba(255, 255, 255, 0.5);
+            color: #333;
+            font-size: 18px;
+        }
+        input::placeholder {
+            color: #666;
+        }
+        input:focus {
+            outline: none;
+            border-color: #ff6b6b;
+            background-color: rgba(255, 255, 255, 0.7);
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 24px;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background-color: #ff5252;
+            transform: translateY(-1px);
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+        .switch-form {
+            text-align: center;
+            margin-top: 22px;
+            color: #666;
+            font-size: 18px;
+        }
+        .switch-form a {
+            color: #ff6b6b;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .switch-form a:hover {
+            color: #ff5252;
+        }
+        .footer-text {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-align: right;
+            line-height: 1.6;
+            font-size: 16px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        .footer-text .first-line {
+            margin-right: 1em;
+        }
+        .error-message {
+            color: #e74c3c;
+            margin: 10px 0;
+            text-align: center;
+            display: none;
+        }
+        .server-status {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-size: 14px;
+            display: none;
+        }
+        .server-status.online {
+            background-color: rgba(46, 204, 113, 0.2);
+            color: #27ae60;
+            border: 1px solid #27ae60;
+        }
+        .server-status.offline {
+            background-color: rgba(231, 76, 60, 0.2);
+            color: #c0392b;
+            border: 1px solid #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="loginForm">
+            <h2>登录</h2>
+            <form onsubmit="handleSubmit(event, 'login')">
+                <div class="form-group">
+                    <input type="text" name="username" id="loginUsername" placeholder="用户名" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" name="password" id="loginPassword" placeholder="密码" required>
+                </div>
+                <button type="submit">登录</button>
+                <div class="switch-form">
+                    还没有账号？<a href="#" onclick="toggleForms()">立即注册</a>
+                </div>
+                <div class="error-message"></div>
+            </form>
+        </div>
+
+        <div id="registerForm" style="display: none;">
+            <h2>注册</h2>
+            <form onsubmit="handleSubmit(event, 'register')">
+                <div class="form-group">
+                    <input type="text" name="username" id="registerUsername" placeholder="用户名" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" name="password" id="registerPassword" placeholder="密码" required>
+                </div>
+                <button type="submit">注册</button>
+                <div class="switch-form">
+                    已有账号？<a href="#" onclick="toggleForms()">立即登录</a>
+                </div>
+                <div class="error-message"></div>
+            </form>
+        </div>
+    </div>
+
+    <div class="server-status" id="serverStatus"></div>
+
+    <div class="footer-text">
+        <div class="first-line">感谢您的使用，</div>
+        <div class="second-line">我们将努力改进</div>
+    </div>
+
+    <script>
+        function toggleForms() {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            
+            if (loginForm.style.display === 'none') {
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+            } else {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+            }
+        }
+
+        async function checkServerStatus() {
+            try {
+                const response = await fetch('/check_server');
+                const data = await response.json();
+                const statusElement = document.getElementById('serverStatus');
+                
+                if (data.status === 'success') {
+                    statusElement.className = 'server-status online';
+                    statusElement.textContent = '服务器在线';
+                    statusElement.style.display = 'block';
+                    return true;
+                } else {
+                    statusElement.className = 'server-status offline';
+                    statusElement.textContent = '服务器离线';
+                    statusElement.style.display = 'block';
+                    return false;
+                }
+            } catch (error) {
+                const statusElement = document.getElementById('serverStatus');
+                statusElement.className = 'server-status offline';
+                statusElement.textContent = '服务器离线';
+                statusElement.style.display = 'block';
+                return false;
+            }
+        }
+
+        async function handleSubmit(event, formType) {
+            event.preventDefault();
+            
+            // 首先检查服务器状态
+            const serverOnline = await checkServerStatus();
+            if (!serverOnline) {
+                showError('服务器当前无法连接，请稍后重试');
+                return;
+            }
+
+            const form = event.target;
+            const formData = new FormData(form);
+            
+            try {
+                const response = await fetch(`/${formType}`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                    } else {
+                        showSuccess(data.message);
+                        if (formType === 'register') {
+                            toggleForms();
+                        }
+                    }
+                } else {
+                    showError(data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('服务器错误，请稍后重试');
+            }
+        }
+
+        function showError(message) {
+            const activeForm = document.querySelector('#loginForm:not([style*="display: none"]) .error-message, #registerForm:not([style*="display: none"]) .error-message');
+            if (activeForm) {
+                activeForm.textContent = message;
+                activeForm.style.display = 'block';
+                
+                setTimeout(() => {
+                    activeForm.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        function showSuccess(message) {
+            const activeForm = document.querySelector('#loginForm:not([style*="display: none"]) .error-message, #registerForm:not([style*="display: none"]) .error-message');
+            if (activeForm) {
+                activeForm.style.color = '#27ae60';
+                activeForm.textContent = message;
+                activeForm.style.display = 'block';
+                
+                setTimeout(() => {
+                    activeForm.style.display = 'none';
+                    activeForm.style.color = '#e74c3c';
+                }, 3000);
+            }
+        }
+
+        // 定期检查服务器状态
+        setInterval(checkServerStatus, 30000);
+        // 页面加载时立即检查一次
+        checkServerStatus();
+    </script>
+</body>
+</html>

@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>面向对象建模题目解答</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        /* 保持之前的样式不变 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .question-container {
+            padding: 30px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .question-title {
+            color: #2c3e50;
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+            display: flex;
+            align-items: center;
+        }
+        
+        .question-number {
+            display: inline-block;
+            background-color: #3498db;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+        
+        .description {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .diagram-container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+            border: 1px solid #e1e4e8;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .diagram-title {
+            font-size: 1.3rem;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .diagram-title i {
+            color: #3498db;
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .mermaid {
+            text-align: center;
+            overflow-x: auto;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 6px;
+            min-height: 400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .data-dictionary {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .data-dictionary th {
+            background-color: #2c3e50;
+            color: white;
+            text-align: left;
+            padding: 15px;
+            font-weight: 600;
+        }
+        
+        .data-dictionary td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        .data-dictionary tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        .data-dictionary tr:hover {
+            background-color: #edf7ff;
+        }
+        
+        .explanation {
+            background-color: #f0f8ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .explanation h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .key-point {
+            background-color: #fff8e1;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .concept-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .concept-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            border-top: 4px solid #42a5f5;
+        }
+        
+        .concept-card h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 25px;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+            background-color: #f8f9fa;
+        }
+        
+        .toggle-buttons {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .toggle-btn {
+            padding: 10px 20px;
+            background-color: #e9ecef;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            color: #495057;
+        }
+        
+        .toggle-btn.active {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .toggle-btn:hover:not(.active) {
+            background-color: #dee2e6;
+        }
+        
+        .mermaid-container {
+            position: relative;
+            min-height: 500px;
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: auto;
+            background-color: #f9f9f9;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                border-radius: 0;
+            }
+            
+            .question-container {
+                padding: 20px 15px;
+            }
+            
+            .mermaid {
+                min-height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>面向对象建模题目解答</h1>
+            <p class="subtitle">根据PPT内容，使用UML分析农产品销售网站和酒店管理系统</p>
+        </header>
+        
+        <div class="toggle-buttons">
+            <button class="toggle-btn active" data-target="question11">农产品销售网站(问题11)</button>
+            <button class="toggle-btn" data-target="question12">酒店管理系统(问题12)</button>
+        </div>
+        
+        <div id="question11" class="question-container">
+            <div class="question-title">
+                <span class="question-number">11</span>
+                农产品销售网站系统
+            </div>
+            
+            <div class="description">
+                <p>根据题目描述，农产品销售网站包含以下角色和功能：</p>
+                <ul>
+                    <li><strong>游客</strong>：只能搜索和浏览农产品信息，注册后成为注册用户</li>
+                    <li><strong>注册用户</strong>：登录后可以搜索和浏览农产品信息、修改个人信息、下单、支付、查询历史订单</li>
+                    <li><strong>卖家</strong>：登录后进行农产品管理、库存管理、个人信息管理、发货</li>
+                    <li><strong>管理员</strong>：登录后可以对用户信息进行管理、对卖家入驻进行审核、系统设置</li>
+                </ul>
+            </div>
+            
+            <div class="key-point">
+                <strong>根据PPT内容要点：</strong> 用例图是从用户的角度描述系统的功能，用来表达系统的功能性需求或行为。参与者是与系统进行交互的外部实体，可以是系统用户、其它系统或硬件设备。
+            </div>
+            
+            <div class="diagram-container">
+                <div class="diagram-title">
+                    <i>📊</i> 1. 农产品销售网站用例图
+                </div>
+                <div class="mermaid-container">
+                    <div class="mermaid" id="useCaseDiagram1">
+                    </div>
+                </div>
+                
+                <div class="explanation">
+                    <h3>用例图解释</h3>
+                    <p>根据PPT中用例图的相关概念：</p>
+                    <ul>
+                        <li><strong>参与者(Actor)</strong>：游客、注册用户、卖家、管理员。其中注册用户和卖家都继承自游客（泛化关系）。</li>
+                        <li><strong>用例(Use Case)</strong>：代表系统提供的服务，如"搜索农产品"、"下单"、"农产品管理"等。</li>
+                        <li><strong>关联关系(Association)</strong>：参与者与用例之间的通信关系。</li>
+                        <li><strong>泛化关系(Generalization)</strong>：注册用户和卖家继承游客的特征。</li>
+                        <li><strong>包含关系(Include)</strong>："下单"用例包含"支付"用例。</li>
+                        <li><strong>扩展关系(Extend)</strong>：暂无扩展用例。</li>
+                    </ul>
+                    <p><strong>系统边界</strong>：所有用例都在系统边界内，参与者在系统边界外。</p>
+                </div>
+            </div>
+            
+            <div class="diagram-container">
+                <div class="diagram-title">
+                    <i>📈</i> 2. 卖家添加农产品顺序图
+                </div>
+                <div class="mermaid-container">
+                    <div class="mermaid" id="sequenceDiagram1">
+                    </div>
+                </div>
+                
+                <div class="explanation">
+                    <h3>顺序图解释</h3>
+                    <p>根据PPT中顺序图的相关概念：</p>
+                    <ul>
+                        <li><strong>对象(Object)</strong>：卖家、添加农产品界面、农产品详情。</li>
+                        <li><strong>生命线(Lifeline)</strong>：每个对象下的垂直虚线，表示对象存在的时间。</li>
+                        <li><strong>消息(Message)</strong>：对象之间的通信，如"输入农产品详情"、"点击确定按钮"、"保存农产品信息"等。</li>
+                        <li><strong>激活期(Activation)</strong>：对象执行操作的时间段，用细长矩形表示。</li>
+                        <li><strong>返回消息(Return Message)</strong>：虚线箭头表示返回消息，如"添加成功"。</li>
+                    </ul>
+                    <p><strong>注意</strong>：根据PPT，顺序图强调对象按照时间顺序的消息交换。</p>
+                </div>
+            </div>
+            
+            <div class="diagram-container">
+                <div class="diagram-title">
+                    <i>📋</i> 3. 农产品详情数据字典
+                </div>
+                
+                <table class="data-dictionary">
+                    <thead>
+                        <tr>
+                            <th>数据项</th>
+                            <th>类型</th>
+                            <th>长度/格式</th>
+                            <th>取值范围/约束</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>编号</td>
+                            <td>数字</td>
+                            <td>8位</td>
+                            <td>唯一标识，正整数</td>
+                        </tr>
+                        <tr>
+                            <td>名称</td>
+                            <td>字符串</td>
+                            <td>1-50字符</td>
+                            <td>不能为空</td>
+                        </tr>
+                        <tr>
+                            <td>上架数量</td>
+                            <td>整数</td>
+                            <td>-</td>
+                            <td>1-10000</td>
+                        </tr>
+                        <tr>
+                            <td>上架日期</td>
+                            <td>日期</td>
+                            <td>年月日(YYYY-MM-DD)</td>
+                            <td>当前日期或未来日期</td>
+                        </tr>
+                        <tr>
+                            <td>分类</td>
+                            <td>枚举</td>
+                            <td>-</td>
+                            <td>{谷物, 畜禽及产品, 渔产品, 蔬菜, 瓜果, 花卉}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="explanation">
+                    <h3>数据字典解释</h3>
+                    <p>根据PPT中类图的相关概念：</p>
+                    <ul>
+                        <li><strong>属性定义</strong>：每个属性都有名称、类型、可见性等特征。</li>
+                        <li><strong>数据类型</strong>：包括数字、字符串、日期、枚举等。</li>
+                        <li><strong>约束条件</strong>：如长度限制、取值范围、唯一性等。</li>
+                    </ul>
+                    <p>这些属性将映射到农产品详情类的属性定义中。</p>
+                </div>
+            </div>
+            
+            <div class="concept-list">
+                <div class="concept-card">
+                    <h4>用例粒度控制</h4>
+                    <p>根据PPT：用例的粒度可大可小，一般一个系统控制在20个左右。用例是系统级的、抽象的描述，考虑的是"做什么"而不是"怎样做"。</p>
+                </div>
+                
+                <div class="concept-card">
+                    <h4>参与者识别</h4>
+                    <p>根据PPT：参与者一定是直接并且主动的向系统发出动作并获得反馈的，否则就不是参与者。如机票预订系统的例子所示。</p>
+                </div>
+                
+                <div class="concept-card">
+                    <h4>包含与扩展关系</h4>
+                    <p>根据PPT：包含关系的基本用例是不完整的，执行基本用例时一定会执行包含用例。扩展关系的基本用例是完整且有意义的，扩展用例不一定每次都被执行。</p>
+                </div>
+            </div>
+        </div>
+        
+        <div id="question12" class="question-container" style="display: none;">
+            <div class="question-title">
+                <span class="question-number">12</span>
+                酒店管理系统
+            </div>
+            
+            <div class="description">
+                <p>根据题目描述，酒店管理系统包含以下角色和功能：</p>
+                <ul>
+                    <li><strong>会员</strong>：注册后可以浏览和查询信息，预定房间，修改个人信息及取消预定</li>
+                    <li><strong>员工</strong>：登录后进行会员信息核查，为会员办理入住/调/退/结账等业务</li>
+                    <li><strong>管理员</strong>：登录后对员工和房间信息进行管理</li>
+                </ul>
+                <p>房间状态变化：空闲 → 已预定 → 空闲/占用，空闲 → 维修 → 空闲</p>
+            </div>
+            
+            <div class="key-point">
+                <strong>根据PPT内容要点：</strong> 状态图用于描述对象在其生命周期内所经历的状态序列，以及如何响应来自外部的各种事件。UML提供了状态图、活动图、顺序图和协作图来描述系统的结构和行为。
+            </div>
+            
+            <div class="diagram-container">
+                <div class="diagram-title">
+                    <i>📊</i> 1. 酒店管理系统用例图
+                </div>
+                <div class="mermaid-container">
+                    <div class="mermaid" id="useCaseDiagram2">
+                    </div>
+                </div>
+                
+                <div class="explanation">
+                    <h3>用例图解释</h3>
+                    <p>根据PPT中用例图的相关概念：</p>
+                    <ul>
+                        <li><strong>参与者(Actor)</strong>：会员、员工、管理员。</li>
+                        <li><strong>用例(Use Case)</strong>：代表系统提供的服务，如"预定房间"、"办理入住"、"房间信息管理"等。</li>
+                        <li><strong>关联关系(Association)</strong>：参与者与用例之间的通信关系。</li>
+                        <li><strong>泛化关系(Generalization)</strong>：本例中没有泛化关系。</li>
+                        <li><strong>包含关系(Include)</strong>："预定房间"可能包含"支付"用例（虽然题目未明确，但通常如此）。</li>
+                        <li><strong>系统边界</strong>：所有用例都在系统边界内，参与者在系统边界外。</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="diagram-container">
+                <div class="diagram-title">
+                    <i>📈</i> 2. 房间状态图
+                </div>
+                <div class="mermaid-container">
+                    <div class="mermaid" id="stateDiagram1">
+                    </div>
+                </div>
+                
+                <div class="explanation">
+                    <h3>状态图解释</h3>
+                    <p>根据PPT中状态图的相关概念：</p>
+                    <ul>
+                        <li><strong>状态(State)</strong>：房间有四个状态：空闲、已预定、维修、占用。</li>
+                        <li><strong>初始状态(Initial State)</strong>：实心圆点表示初始状态（空闲）。</li>
+                        <li><strong>状态转移(Transition)</strong>：箭头表示状态之间的转移，箭头上标注触发事件。</li>
+                        <li><strong>事件(Event)</strong>：如"预定"、"取消预定"、"故障"、"维修完成"等。</li>
+                        <li><strong>最终状态(Final State)</strong>：本例中没有最终状态，因为房间状态会持续变化。</li>
+                    </ul>
+                    <p>状态图显示了一组状态、状态之间的转移以及触发这些转移的事件。</p>
+                </div>
+            </div>
+            
+            <div class="diagram-container">
+                <div class="diagram-title">
+                    <i>📋</i> 3. 会员预定信息数据字典
+                </div>
+                
+                <table class="data-dictionary">
+                    <thead>
+                        <tr>
+                            <th>数据项</th>
+                            <th>类型</th>
+                            <th>长度/格式</th>
+                            <th>取值范围/约束</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>会员姓名</td>
+                            <td>字符串</td>
+                            <td>1-50字符</td>
+                            <td>不能为空</td>
+                        </tr>
+                        <tr>
+                            <td>身份证号</td>
+                            <td>数字</td>
+                            <td>18位</td>
+                            <td>符合身份证规则</td>
+                        </tr>
+                        <tr>
+                            <td>房间编号</td>
+                            <td>数字</td>
+                            <td>4位</td>
+                            <td>存在且空闲</td>
+                        </tr>
+                        <tr>
+                            <td>类型</td>
+                            <td>枚举</td>
+                            <td>-</td>
+                            <td>{大床房, 标间, 套房, 豪华套房}</td>
+                        </tr>
+                        <tr>
+                            <td>联系方式</td>
+                            <td>数字</td>
+                            <td>13位</td>
+                            <td>手机号格式</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="explanation">
+                    <h3>数据字典解释</h3>
+                    <p>这些属性构成了会员预定信息类（或实体类）的属性：</p>
+                    <ul>
+                        <li><strong>可见性(Visibility)</strong>：根据PPT，属性可见性分为public(+)、private(-)、protected(#)。</li>
+                        <li><strong>数据类型</strong>：包括字符串、数字、枚举等。</li>
+                        <li><strong>约束条件</strong>：如长度限制、格式要求、取值范围等。</li>
+                    </ul>
+                    <p>这些属性将用于类图中的类定义。</p>
+                </div>
+            </div>
+            
+            <div class="concept-list">
+                <div class="concept-card">
+                    <h4>类与对象</h4>
+                    <p>根据PPT：类是对象的集合，对象是类的实例。类图描述系统的静态结构，对象彼此间的关系。</p>
+                </div>
+                
+                <div class="concept-card">
+                    <h4>状态图作用</h4>
+                    <p>根据PPT：状态图用于描述系统中对象在其生命周期内所经历的状态序列，以及如何响应来自外部的各种事件。</p>
+                </div>
+                
+                <div class="concept-card">
+                    <h4>关联关系</h4>
+                    <p>根据PPT：关联表示两个类的对象之间存在某种语义上的联系。关联可以有导航性、重数、角色名等特性。</p>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>面向对象建模题目解答 - 根据PPT《面向对象方法与统一建模语言》相关内容创建</p>
+            <p>使用Mermaid.js绘制UML图 | 基于用例图、类图、顺序图、状态图等UML建模机制</p>
+        </footer>
+    </div>
+
+    <script>
+        // 初始化Mermaid
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'default',
+            securityLevel: 'loose',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true
+            }
+        });
+        
+        // 农产品销售网站用例图
+        const useCaseDiagram1 = `graph TD
+            subgraph "系统边界"
+                UC1[搜索农产品]
+                UC2[浏览农产品信息]
+                UC3[注册]
+                UC4[登录]
+                UC5[修改个人信息]
+                UC6[下单]
+                UC7[支付]
+                UC8[查询历史订单]
+                UC9[农产品管理]
+                UC10[库存管理]
+                UC11[个人信息管理]
+                UC12[发货]
+                UC13[用户信息管理]
+                UC14[卖家入驻审核]
+                UC15[系统设置]
+            end
+            
+            A1[游客] --> UC1
+            A1 --> UC2
+            A1 --> UC3
+            
+            A2[注册用户] --> UC4
+            A2 --> UC5
+            A2 --> UC6
+            A2 --> UC8
+            
+            A3[卖家] --> UC4
+            A3 --> UC9
+            A3 --> UC10
+            A3 --> UC11
+            A3 --> UC12
+            
+            A4[管理员] --> UC4
+            A4 --> UC13
+            A4 --> UC14
+            A4 --> UC15
+            
+            UC6 --> UC7
+            
+            A1 -->|泛化| A2
+            A1 -->|泛化| A3
+            
+            classDef actor fill:#e1f5fe,stroke:#0288d1
+            classDef usecase fill:#f0f4ff,stroke:#3f51b5,rx:10,ry:10
+            classDef boundary fill:#f9f9f9,stroke:#333,stroke-dasharray: 5 5
+            
+            class A1,A2,A3,A4 actor
+            class UC1,UC2,UC3,UC4,UC5,UC6,UC7,UC8,UC9,UC10,UC11,UC12,UC13,UC14,UC15 usecase
+            class 系统边界 boundary`;
+        
+        // 卖家添加农产品顺序图
+        const sequenceDiagram1 = `sequenceDiagram
+            participant 卖家
+            participant 界面 as 添加农产品界面
+            participant 详情 as 农产品详情
+            
+            卖家->>界面: 1. 输入农产品详情
+            卖家->>界面: 2. 点击确定按钮
+            activate 界面
+            界面->>界面: 3. 验证输入数据
+            界面->>详情: 4. 保存农产品信息
+            activate 详情
+            详情->>详情: 5. 持久化存储
+            详情-->>界面: 6. 返回成功
+            deactivate 详情
+            界面-->>卖家: 7. 显示添加成功
+            deactivate 界面
+            
+            Note right of 详情: 农产品详情包括:<br/>编号、名称、上架数量、<br/>上架日期、分类`;
+        
+        // 酒店管理系统用例图
+        const useCaseDiagram2 = `graph TD
+            subgraph "系统边界"
+                UC1[注册]
+                UC2[浏览和查询信息]
+                UC3[预定房间]
+                UC4[修改个人信息]
+                UC5[取消预定]
+                UC6[登录]
+                UC7[会员信息核查]
+                UC8[办理入住]
+                UC9[调房]
+                UC10[退房]
+                UC11[结账]
+                UC12[员工信息管理]
+                UC13[房间信息管理]
+            end
+            
+            A1[会员] --> UC1
+            A1 --> UC2
+            A1 --> UC3
+            A1 --> UC4
+            A1 --> UC5
+            
+            A2[员工] --> UC6
+            A2 --> UC7
+            A2 --> UC8
+            A2 --> UC9
+            A2 --> UC10
+            A2 --> UC11
+            
+            A3[管理员] --> UC6
+            A3 --> UC12
+            A3 --> UC13
+            
+            UC3 -.-> UC11
+            
+            classDef actor fill:#e1f5fe,stroke:#0288d1
+            classDef usecase fill:#f0f4ff,stroke:#3f51b5,rx:10,ry:10
+            classDef boundary fill:#f9f9f9,stroke:#333,stroke-dasharray: 5 5
+            
+            class A1,A2,A3 actor
+            class UC1,UC2,UC3,UC4,UC5,UC6,UC7,UC8,UC9,UC10,UC11,UC12,UC13 usecase
+            class 系统边界 boundary`;
+        
+        // 房间状态图
+        const stateDiagram1 = `stateDiagram-v2
+            [*] --> 空闲
+            空闲 --> 已预定: 预定
+            已预定 --> 空闲: 取消预定
+            空闲 --> 维修: 故障
+            维修 --> 空闲: 维修完成
+            空闲 --> 占用: 入住
+            占用 --> 空闲: 退房
+            占用 --> 空闲: 换房
+            
+            state 空闲 {
+                [*] --> 可预订
+                可预订 --> [*]
+            }
+            
+            state 已预定 {
+                [*] --> 待入住
+                待入住 --> [*]
+            }
+            
+            state 维修 {
+                [*] --> 维修中
+                维修中 --> [*]
+            }
+            
+            state 占用 {
+                [*] --> 使用中
+                使用中 --> [*]
+            }`;
+        
+        // 渲染图表
+        $(document).ready(function() {
+            // 初始渲染问题11的图表
+            renderDiagrams();
+            
+            // 切换问题显示
+            $('.toggle-btn').click(function() {
+                const target = $(this).data('target');
+                
+                // 更新按钮状态
+                $('.toggle-btn').removeClass('active');
+                $(this).addClass('active');
+                
+                // 切换问题显示
+                $('.question-container').hide();
+                $('#' + target).show();
+                
+                // 重新渲染图表
+                renderDiagrams();
+            });
+            
+            function renderDiagrams() {
+                // 如果问题11可见
+                if ($('#question11').is(':visible')) {
+                    $('#useCaseDiagram1').html(useCaseDiagram1);
+                    $('#sequenceDiagram1').html(sequenceDiagram1);
+                    
+                    // 重新初始化Mermaid渲染
+                    mermaid.init(undefined, $('#useCaseDiagram1'));
+                    mermaid.init(undefined, $('#sequenceDiagram1'));
+                }
+                
+                // 如果问题12可见
+                if ($('#question12').is(':visible')) {
+                    $('#useCaseDiagram2').html(useCaseDiagram2);
+                    $('#stateDiagram1').html(stateDiagram1);
+                    
+                    // 重新初始化Mermaid渲染
+                    mermaid.init(undefined, $('#useCaseDiagram2'));
+                    mermaid.init(undefined, $('#stateDiagram1'));
+                }
+            }
+            
+            // 初始渲染
+            mermaid.init();
+        });
+    </script>
+</body>
+</html>

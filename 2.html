@@ -1,0 +1,791 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PICTURES</title>
+  <style>
+    :root{--bg:#0b1220;--card:#0f1933;--text:#e8eeff;--muted:#a9b6dd;--pri:#6ea8fe;--bd:rgba(255,255,255,.10);--chip:rgba(110,168,254,.16)}
+    *{box-sizing:border-box;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial}
+    body{margin:0;background:linear-gradient(180deg,#0b1220,#070b14);color:var(--text)}
+    .top{position:sticky;top:0;z-index:10;background:rgba(11,18,32,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--bd)}
+    .bar{max-width:1200px;margin:0 auto;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .brand{font-weight:800;letter-spacing:.3px}
+    .me{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px}
+    .btn{border:1px solid var(--bd);background:rgba(255,255,255,.06);color:var(--text);padding:7px 10px;border-radius:10px;cursor:pointer}
+    .btn.pri{border:0;background:linear-gradient(135deg,#6ea8fe,#8a7dff);color:#0b1220;font-weight:800}
+    .tabs{display:flex;gap:6px}
+    .tab{padding:6px 10px;border-radius:999px;border:1px solid transparent;background:transparent;color:var(--muted);font-size:13px;cursor:pointer}
+    .tab.on{background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.18);color:var(--text)}
+    .wrap{max-width:1200px;margin:0 auto;padding:14px}
+    .view{transition:opacity .22s ease, transform .22s ease}
+    .view.hide{opacity:0;transform:translateY(8px);pointer-events:none}
+    .view.show{opacity:1;transform:translateY(0);pointer-events:auto}
+    .back-top{position:fixed;right:18px;bottom:22px;z-index:50;padding:8px 11px;border-radius:999px;border:1px solid var(--bd);background:rgba(11,18,32,.85);color:var(--muted);font-size:12px;cursor:pointer;display:none}
+    .back-top:hover{color:var(--text);border-color:var(--pri)}
+    .panel{background:rgba(15,25,51,.78);border:1px solid var(--bd);border-radius:16px;padding:14px}
+    h2{margin:0 0 10px;font-size:16px}
+    label{display:block;margin:10px 0 6px;color:var(--muted);font-size:12px}
+    input,textarea{width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--bd);background:rgba(0,0,0,.20);color:var(--text);outline:none}
+    textarea{min-height:90px;resize:vertical}
+    .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+    .chip{padding:6px 10px;border:1px solid var(--bd);border-radius:999px;background:var(--chip);cursor:pointer;font-size:12px;color:var(--text);user-select:none}
+    .chip.on{background:rgba(138,125,255,.22);border-color:rgba(138,125,255,.45)}
+    .muted{color:var(--muted);font-size:12px}
+    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    .card{border:1px solid var(--bd);border-radius:16px;overflow:hidden;background:rgba(255,255,255,.03);cursor:pointer;transition:transform .12s ease, box-shadow .12s ease}
+    .card:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(0,0,0,.45)}
+    .thumb{width:100%;height:150px;object-fit:cover;display:block;background:#111}
+    .meta{padding:9px 10px 10px}
+    .title{font-weight:800;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .sub{display:flex;justify-content:space-between;gap:8px;margin-top:6px;color:var(--muted);font-size:12px}
+    .pill{display:inline-flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+    .pill span{font-size:11px;padding:3px 8px;border-radius:999px;border:1px solid var(--bd);background:rgba(255,255,255,.04)}
+    .row{display:flex;gap:10px;align-items:center}
+    .empty{padding:18px;color:var(--muted);text-align:center;border:1px dashed var(--bd);border-radius:16px}
+    .toast{margin-top:10px;color:#ffd66e;font-size:12px;min-height:18px;display:none}
+    .feed-fade{transition:opacity .22s ease}
+    .feed-fade.out{opacity:0}
+    .feed-fade.in{opacity:1}
+    .two-col{display:grid;grid-template-columns:360px 1fr;gap:14px}
+    .section-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+    .section-title h2{margin:0;font-size:16px}
+    .pill-small{font-size:11px;padding:3px 8px;border-radius:999px;border:1px solid var(--bd);background:rgba(255,255,255,.04);color:var(--muted)}
+    /* 大图浏览弹层 */
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:40}
+    .overlay-inner{width:min(960px,94vw);max-height:90vh;background:rgba(11,18,32,.98);border-radius:18px;border:1px solid rgba(255,255,255,.14);display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);overflow:hidden}
+    .overlay-left{background:#050713;display:flex;align-items:center;justify-content:center}
+    .overlay-left img{max-width:100%;max-height:80vh;object-fit:contain;background:#050713}
+    .overlay-right{padding:14px 14px 12px;display:flex;flex-direction:column;gap:10px}
+    .overlay-header{display:flex;justify-content:space-between;align-items:center;gap:10px}
+    .overlay-title{font-weight:800}
+    .overlay-close{border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:18px}
+    .stats-row{display:flex;gap:10px;align-items:center;margin-top:4px}
+    .stat-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border-radius:999px;border:1px solid var(--bd);font-size:11px;color:var(--muted)}
+    .stat-chip strong{color:var(--text)}
+    .action-row{display:flex;gap:8px;margin-top:6px}
+    .btn-sm{padding:6px 9px;font-size:12px;border-radius:999px;border:1px solid var(--bd);background:rgba(255,255,255,.04);color:var(--text);cursor:pointer}
+    .btn-sm.pri{border:0;background:linear-gradient(135deg,#6ea8fe,#8a7dff);color:#0b1220;font-weight:700}
+    .btn-sm.edit-btn{background:#2e7bff;border-color:#2e7bff;color:#071226}
+    .btn-sm.edit-btn:hover{filter:brightness(1.05)}
+    .btn-sm[disabled]{opacity:.5;cursor:default}
+    .comment-list{flex:1;overflow:auto;margin-top:4px;padding-right:4px}
+    .comment-item{border-bottom:1px dashed rgba(255,255,255,.08);padding:6px 0}
+    .comment-item:last-child{border-bottom:none}
+    .comment-meta{font-size:11px;color:var(--muted);margin-bottom:2px;display:flex;justify-content:space-between}
+    .comment-content{font-size:13px;color:var(--text)}
+    .comment-form{margin-top:6px;display:flex;gap:6px;align-items:center}
+    .comment-form input{flex:1;padding:7px 9px;border-radius:999px;font-size:12px}
+    @media(max-width:980px){
+      .two-col{grid-template-columns:1fr}
+      .grid{grid-template-columns:repeat(2,1fr)}
+      .overlay-inner{grid-template-columns:1fr}
+      .overlay-left{order:1}
+    }
+    @media(max-width:600px){
+      .grid{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="top">
+    <div class="bar">
+      <div class="row" style="gap:12px;flex-wrap:wrap">
+        <div class="brand">PICTURES</div>
+        <div class="tabs">
+          <button class="tab on" id="tabDiscover">发现</button>
+          <button class="tab" id="tabMine">我的发布</button>
+          <button class="tab" id="tabLiked">我的喜欢</button>
+          <button class="tab" id="tabFavorited">我的收藏</button>
+          <button class="tab" id="tabCommented">我评论过</button>
+        </div>
+        <div class="row" style="gap:8px;flex:1;justify-content:flex-end">
+          <input id="searchInput" placeholder="请输入搜索内容" 
+          style="min-width:220px;max-width:320px;
+          padding:7px 30px;border-radius:999px;transform: translateX(100px);
+          border:1px solid var(--bd);background:rgba(0,0,0,.35);
+          color:var(--text);outline:none;font-size:12px">
+          <button class="btn-sm pri" id="btnSearch" style="transform: translateX(-180px)">🔍</button>
+        </div>
+      </div>
+      <div class="me">
+        <span id="meText">未登录</span>
+        <button class="btn" id="btnLogout">退出</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <!-- 发现页 -->
+    <div id="viewDiscover" class="view show">
+      <div class="panel">
+        <div class="section-title">
+          <h2>发现好图</h2>
+          <button class="btn-sm" id="btnBackToRandom">刷新</button>
+        </div>
+        <div id="feed" class="grid feed-fade in"></div>
+        <div class="toast" id="toastDiscover"></div>
+      </div>
+    </div>
+
+    <!-- 我的发布 -->
+    <div id="viewMine" class="view hide" style="display:none">
+      <div class="two-col">
+        <div class="panel">
+          <h2>发布 / 编辑照片</h2>
+          <label>标题</label>
+          <input id="title" placeholder="例如：我的游戏桌面" />
+          <label>描述（可选）</label>
+          <textarea id="desc" placeholder="简单描述一下..."></textarea>
+          <label>选择标签</label>
+          <div class="tags" id="tagBox"></div>
+          <label>选择图片（仅新发布时需要）</label>
+          <input id="file" type="file" accept="image/*" />
+          <div class="row" style="margin-top:12px">
+            <button class="btn pri" id="btnPublish" style="flex:1">发布 / 保存</button>
+            <button class="btn" id="btnResetForm">清空</button>
+          </div>
+          <div class="toast" id="toast"></div>
+          <div class="muted" id="editingHint" style="margin-top:6px;display:none"></div>
+        </div>
+
+        <div class="panel">
+          <div class="section-title">
+            <h2 id="mineTitle">我的发布</h2>
+          </div>
+          <div id="mineList" class="grid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button class="back-top" id="btnBackTop">置顶</button>
+
+  <!-- 大图浏览 / 点赞 / 评论 弹层 -->
+  <div class="overlay" id="viewer">
+    <div class="overlay-inner">
+      <div class="overlay-left">
+        <img id="viewerImg" src="" alt="">
+      </div>
+      <div class="overlay-right">
+        <div class="overlay-header">
+          <div>
+            <div class="overlay-title" id="viewerTitle"></div>
+            <div class="muted" id="viewerMeta" style="margin-top:4px"></div>
+            <div class="pill" id="viewerTags" style="margin-top:6px"></div>
+          </div>
+          <button class="overlay-close" id="btnViewerClose">×</button>
+        </div>
+        <div class="muted" id="viewerDesc"></div>
+        <div class="stats-row">
+          <div class="stat-chip"><strong id="statLikes">0</strong> 赞</div>
+          <div class="stat-chip"><strong id="statFavs">0</strong> 收藏</div>
+        </div>
+        <div class="action-row">
+          <button class="btn-sm pri" id="btnLike">点赞</button>
+          <button class="btn-sm" id="btnFav">收藏</button>
+        </div>
+        <div class="toast" id="toastViewer"></div>
+        <div class="comment-list" id="commentList"></div>
+        <form class="comment-form" id="commentForm">
+          <input type="text" id="commentInput" placeholder="写一条评论..." maxlength="100">
+          <button class="btn-sm pri" type="submit">发送</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const tagsPreset = ['游戏','数码','家具','美女','帅哥','旅行','美食','运动','宠物','风景'];
+    const tagBox = document.getElementById('tagBox');
+    const toast = document.getElementById('toast');
+    const toastDiscover = document.getElementById('toastDiscover');
+    const feedEl = document.getElementById('feed');
+    const mineListEl = document.getElementById('mineList');
+    const toastViewer = document.getElementById('toastViewer');
+    const viewerEl = document.getElementById('viewer');
+    const viewerImg = document.getElementById('viewerImg');
+    const viewerTitle = document.getElementById('viewerTitle');
+    const viewerMeta = document.getElementById('viewerMeta');
+    const viewerTags = document.getElementById('viewerTags');
+    const viewerDesc = document.getElementById('viewerDesc');
+    const statLikes = document.getElementById('statLikes');
+    const statFavs = document.getElementById('statFavs');
+    const btnLike = document.getElementById('btnLike');
+    const btnFav = document.getElementById('btnFav');
+    const commentList = document.getElementById('commentList');
+    const commentForm = document.getElementById('commentForm');
+    const commentInput = document.getElementById('commentInput');
+    const editingHint = document.getElementById('editingHint');
+    const searchInput = document.getElementById('searchInput');
+    const btnSearch = document.getElementById('btnSearch');
+
+    let me = null;
+    let browseCount = 0;
+    let currentPhoto = null;
+    let editingPhotoId = null;
+    let baseFeed = [];
+    let recFeed = [];
+    let historyFeed = [];
+    let mineMode = 'mine'; // mine | liked | favorited | commented
+    let hasRecommended = false; // 本次“发现流”是否已经触发过推荐
+
+    function setToast(t){
+      toast.textContent = t || '';
+      toast.style.display = t ? 'block' : 'none';
+    }
+    function setToastDiscover(t){
+      toastDiscover.textContent = t || '';
+      // 发现页的黄色提示不展示（保持隐藏）
+    }
+    function setToastViewer(t){
+      toastViewer.textContent = t || '';
+      toastViewer.style.display = t ? 'block' : 'none';
+    }
+    function fmtTags(s){
+      if(!s) return [];
+      return s.split(/[,，\s]+/).map(x=>x.trim()).filter(Boolean);
+    }
+    function fmtDate(value){
+      if(!value) return '';
+      const s = String(value);
+      const i = s.indexOf('T');
+      if(i > 0) return s.slice(0, i);
+      return s.slice(0, 10);
+    }
+
+    function createCard(p, onClick, showEdit){
+      const div = document.createElement('div');
+      div.className = 'card';
+      div.innerHTML = `
+        <img class="thumb" src="${p.imageUrl}" alt="">
+        <div class="meta">
+          <div class="title">${escapeHtml(p.title||'')}</div>
+          <div class="sub">
+            <span>${escapeHtml(p.username||'')}</span>
+            <span>${p.createTime ? escapeHtml(fmtDate(p.createTime)) : ''}</span>
+          </div>
+          <div class="pill">${fmtTags(p.tags).slice(0,4).map(t=>`<span>${escapeHtml(t)}</span>`).join('')}</div>
+        </div>
+      `;
+      div.addEventListener('click', (e) => {
+        if(showEdit && e.target.closest('.edit-btn')) return;
+        onClick && onClick(p);
+      });
+      if(showEdit && mineMode === 'mine'){
+        const row = document.createElement('div');
+        row.className = 'row';
+        row.style.marginTop = '6px';
+        row.style.gap = '6px';
+
+        const editBtn = document.createElement('button');
+        editBtn.textContent = '编辑';
+        editBtn.className = 'btn-sm edit-btn';
+        editBtn.addEventListener('click', (e)=>{
+          e.stopPropagation();
+          startEditPhoto(p);
+        });
+
+        const delBtn = document.createElement('button');
+        delBtn.textContent = '删除';
+        delBtn.className = 'btn-sm edit-btn';
+        delBtn.addEventListener('click', async (e)=>{
+          e.stopPropagation();
+          if(!confirm('确定删除这条发布吗？')) return;
+          const res = await fetch(`/photos/${p.id}`, {method:'DELETE'});
+          const json = await res.json().catch(()=>({code:0,msg:'响应解析失败'}));
+          if(res.status === 401 || json.msg === 'NOT_LOGIN'){ location.href='/login.html'; return; }
+          if(json.code===1){
+            setToast('删除成功');
+            await loadMine();
+            await loadFeed();
+          }else{
+            alert(json.msg || '删除失败');
+          }
+        });
+
+        row.appendChild(editBtn);
+        row.appendChild(delBtn);
+        div.querySelector('.meta').appendChild(row);
+      }
+      return div;
+    }
+    function escapeHtml(s){
+      return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    function renderTagChips(){
+      tagBox.innerHTML = '';
+      tagsPreset.forEach(t=>{
+        const chip = document.createElement('div');
+        chip.className = 'chip';
+        chip.textContent = t;
+        chip.addEventListener('click', ()=>{
+          chip.classList.toggle('on');
+        });
+        tagBox.appendChild(chip);
+      });
+    }
+    function selectedTags(){
+      return Array.from(tagBox.querySelectorAll('.chip.on')).map(x=>x.textContent);
+    }
+
+    async function apiGet(url){
+      const res = await fetch(url);
+      const json = await res.json().catch(()=>({code:0,msg:'响应解析失败'}));
+      if(res.status === 401 || json.msg === 'NOT_LOGIN'){
+        location.href = '/login.html';
+        return null;
+      }
+      return json;
+    }
+    async function apiPostForm(url, data){
+      const body = new URLSearchParams(data);
+      const res = await fetch(url, {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body});
+      const json = await res.json().catch(()=>({code:0,msg:'响应解析失败'}));
+      if(res.status === 401 || json.msg === 'NOT_LOGIN'){
+        location.href = '/login.html';
+        return null;
+      }
+      return json;
+    }
+
+    async function loadMe(){
+      const r = await apiGet('/auth/me');
+      if(!r) return;
+      if(r.code===1){
+        me = r.data;
+        document.getElementById('meText').textContent = `你好，${me.username}`;
+      }else{
+        location.href = '/login.html';
+      }
+    }
+
+    async function loadFeed(){
+      setToastDiscover('');
+      feedEl.innerHTML = '';
+      const r = await apiGet('/photos/feed');
+      if(!r) return;
+      if(r.code!==1){
+        setToastDiscover(r.msg || '加载失败');
+        return;
+      }
+      const list = r.data || [];
+      if(list.length===0){
+        feedEl.innerHTML = `<div class="empty" style="grid-column:1/-1">暂无他人照片，请先用另一个账号发布几张</div>`;
+        return;
+      }
+      baseFeed = shuffle(list);
+      recFeed = [];
+      historyFeed = [];
+      browseCount = 0;
+      hasRecommended = false;
+      renderDiscover();
+    }
+
+    async function openPhoto(p){
+      currentPhoto = p;
+      addToHistory(p);
+      browseCount += 1;
+      showViewer(p);
+      // 每个“发现流”只推荐一次：首次达到 3、6、9... 次点击时触发
+      if(!hasRecommended && historyFeed.length >= 3 && browseCount >= 3 && browseCount % 3 === 0){
+        await loadRecommendByHistory();
+        hasRecommended = true;
+      }
+    }
+
+    async function loadRecommendByHistory(){
+      if(historyFeed.length < 3) return;
+      const ids = historyFeed.map(x=>x.id).join(',');
+      setToastDiscover('正在请求 Python 推荐服务（综合最近3张）...');
+      const r = await apiGet(`/photos/recommend/history?ids=${encodeURIComponent(ids)}&topK=12`);
+      if(!r) return;
+      if(r.code!==1){
+        setToastDiscover(r.msg || '推荐失败（请确认 Python 服务已启动）');
+        return;
+      }
+      recFeed = r.data || [];
+      setToastDiscover(recFeed.length ? '已为你生成推荐内容' : '暂无推荐');
+      renderDiscover(true);
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    function renderDiscover(withFade){
+      const historyIds = new Set(historyFeed.map(x=>x.id));
+      const recIds = new Set((recFeed||[]).map(x=>x.id));
+      const recClean = (recFeed||[]).filter(x=>x && !historyIds.has(x.id));
+      const rest = (baseFeed||[]).filter(x=>x && !historyIds.has(x.id) && !recIds.has(x.id));
+      const finalList = [...historyFeed, ...recClean, ...rest];
+      renderFeed(finalList, withFade);
+    }
+
+    function renderFeed(list, withFade){
+      const doRender = ()=>{
+        feedEl.innerHTML = '';
+        if(!list || !list.length){
+          feedEl.innerHTML = `<div class="empty" style="grid-column:1/-1">暂无数据</div>`;
+          return;
+        }
+        list.forEach(p=>{
+          feedEl.appendChild(createCard(p, openPhoto, false));
+        });
+      };
+      if(!withFade){
+        doRender();
+        return;
+      }
+      feedEl.classList.remove('in');
+      feedEl.classList.add('out');
+      setTimeout(()=>{
+        doRender();
+        feedEl.classList.remove('out');
+        feedEl.classList.add('in');
+      }, 160);
+    }
+
+    function addToHistory(p){
+      if(!p || !p.id) return;
+      // 保持最近3张，去重后追加到末尾
+      historyFeed = historyFeed.filter(x=>x && x.id !== p.id);
+      historyFeed.push(p);
+      if(historyFeed.length > 3) historyFeed = historyFeed.slice(historyFeed.length - 3);
+    }
+
+    function shuffle(arr){
+      const a = (arr||[]).slice();
+      for(let i=a.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [a[i],a[j]] = [a[j],a[i]];
+      }
+      return a;
+    }
+
+    function showViewer(p){
+      viewerImg.src = p.imageUrl;
+      viewerTitle.textContent = p.title || '';
+      viewerMeta.textContent = `作者：${p.username || ''}`;
+      viewerTags.innerHTML = fmtTags(p.tags).map(t=>`<span>${escapeHtml(t)}</span>`).join('');
+      viewerDesc.textContent = p.description || '';
+      statLikes.textContent = '0';
+      statFavs.textContent = '0';
+      btnLike.disabled = false;
+      btnFav.disabled = false;
+      setToastViewer('');
+      loadStats(p.id);
+      viewerEl.style.display = 'flex';
+    }
+
+    async function loadStats(photoId){
+      const r = await apiGet(`/photos/${photoId}/stats`);
+      if(!r) return;
+      if(r.code!==1){
+        setToastViewer(r.msg || '加载失败');
+        return;
+      }
+      const s = r.data || {};
+      statLikes.textContent = s.likeCount ?? 0;
+      statFavs.textContent = s.favoriteCount ?? 0;
+      btnLike.disabled = !!s.likedByMe;
+      btnFav.disabled = !!s.favoritedByMe;
+      renderComments(s.comments || []);
+    }
+
+    function renderComments(list){
+      commentList.innerHTML = '';
+      if(!list.length){
+        commentList.innerHTML = `<div class="muted">还没有评论，来说点什么吧～</div>`;
+        return;
+      }
+      list.forEach(c=>{
+        const div = document.createElement('div');
+        div.className = 'comment-item';
+        div.innerHTML = `
+          <div class="comment-meta">
+            <span>${escapeHtml(c.username || '')}</span>
+            <span>${c.createTime ? escapeHtml(c.createTime) : ''}</span>
+          </div>
+          <div class="comment-content">${escapeHtml(c.content || '')}</div>
+        `;
+        commentList.appendChild(div);
+      });
+    }
+
+    document.getElementById('btnViewerClose').addEventListener('click', ()=>{
+      viewerEl.style.display = 'none';
+      currentPhoto = null;
+    });
+    viewerEl.addEventListener('click', (e)=>{
+      if(e.target === viewerEl){
+        viewerEl.style.display = 'none';
+        currentPhoto = null;
+      }
+    });
+
+    btnLike.addEventListener('click', async ()=>{
+      if(!currentPhoto) return;
+      btnLike.disabled = true;
+      const r = await apiPostForm(`/photos/${currentPhoto.id}/like`, {});
+      if(r && r.code !== 1) setToastViewer(r.msg || '点赞失败');
+      await loadStats(currentPhoto.id);
+    });
+
+    btnFav.addEventListener('click', async ()=>{
+      if(!currentPhoto) return;
+      btnFav.disabled = true;
+      const r = await apiPostForm(`/photos/${currentPhoto.id}/favorite`, {});
+      if(r && r.code !== 1) setToastViewer(r.msg || '收藏失败');
+      await loadStats(currentPhoto.id);
+    });
+
+    commentForm.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      if(!currentPhoto) return;
+      const text = commentInput.value.trim();
+      if(!text) return;
+      const r = await apiPostForm(`/photos/${currentPhoto.id}/comment`, {content:text});
+      if(r && r.code !== 1){
+        setToastViewer(r.msg || '评论失败');
+        return;
+      }
+      commentInput.value = '';
+      await loadStats(currentPhoto.id);
+    });
+
+    document.getElementById('btnPublish').addEventListener('click', async ()=>{
+      setToast('');
+      const title = document.getElementById('title').value.trim();
+      const description = document.getElementById('desc').value.trim();
+      const tags = selectedTags().join(',');
+      const file = document.getElementById('file').files[0];
+      if(!title) return setToast('标题不能为空');
+      if(!tags) return setToast('请至少选择一个标签');
+
+      // 新发布
+      if(!editingPhotoId){
+        if(!file) return setToast('请选择图片文件');
+        const form = new FormData();
+        form.append('file', file);
+        form.append('title', title);
+        form.append('description', description);
+        form.append('tags', tags);
+        const res = await fetch('/photos', { method:'POST', body: form });
+        const json = await res.json().catch(()=>({code:0,msg:'响应解析失败'}));
+        if(res.status === 401 || json.msg === 'NOT_LOGIN'){ location.href='/login.html'; return; }
+        if(json.code===1){
+          setToast('发布成功');
+          resetForm();
+          await loadMine();
+          await loadFeed();
+        }else{
+          setToast(json.msg || '发布失败');
+        }
+      }else{
+        // 编辑保存（不支持改图，只改标题/描述/标签）
+        const body = new URLSearchParams({title, description, tags});
+        const res = await fetch(`/photos/${editingPhotoId}`, {
+          method:'PUT',
+          headers:{'Content-Type':'application/x-www-form-urlencoded'},
+          body
+        });
+        const json = await res.json().catch(()=>({code:0,msg:'响应解析失败'}));
+        if(res.status === 401 || json.msg === 'NOT_LOGIN'){ location.href='/login.html'; return; }
+        if(json.code===1){
+          setToast('保存成功');
+          resetForm();
+          await loadMine();
+        }else{
+          setToast(json.msg || '保存失败');
+        }
+      }
+    });
+
+    function resetForm(){
+      editingPhotoId = null;
+      document.getElementById('title').value='';
+      document.getElementById('desc').value='';
+      document.getElementById('file').value='';
+      tagBox.querySelectorAll('.chip.on').forEach(x=>x.classList.remove('on'));
+      editingHint.style.display = 'none';
+      editingHint.textContent = '';
+    }
+
+    document.getElementById('btnResetForm').addEventListener('click', resetForm);
+
+    async function loadMine(){
+      mineListEl.innerHTML = '';
+      let url = '/photos/my';
+      if(mineMode === 'liked') url = '/photos/liked';
+      if(mineMode === 'favorited') url = '/photos/favorited';
+      if(mineMode === 'commented') url = '/photos/commented';
+      const r = await apiGet(url);
+      if(!r || r.code!==1){
+        mineListEl.innerHTML = `<div class="empty" style="grid-column:1/-1">${escapeHtml(r && r.msg ? r.msg : '加载失败')}</div>`;
+        return;
+      }
+      const list = r.data || [];
+      if(!list.length){
+        const tip = mineMode === 'mine' ? '你还没有发布过照片，先发一张试试吧～'
+                  : mineMode === 'liked' ? '你还没有点赞过任何照片'
+                  : mineMode === 'favorited' ? '你还没有收藏过任何照片'
+                  : '你还没有评论过任何照片';
+        mineListEl.innerHTML = `<div class="empty" style="grid-column:1/-1">${tip}</div>`;
+        return;
+      }
+      list.forEach(p=>{
+        mineListEl.appendChild(createCard(p, openPhoto, true));
+      });
+    }
+
+    function updateMineTitle(){
+      const el = document.getElementById('mineTitle');
+      if(!el) return;
+      el.textContent =
+        mineMode === 'mine' ? '我的发布' :
+        mineMode === 'liked' ? '我的喜欢' :
+        mineMode === 'favorited' ? '我的收藏' :
+        '我评论过';
+    }
+
+    function startEditPhoto(p){
+      editingPhotoId = p.id;
+      document.getElementById('title').value = p.title || '';
+      document.getElementById('desc').value = p.description || '';
+      tagBox.querySelectorAll('.chip').forEach(ch=>{
+        ch.classList.remove('on');
+      });
+      const tagSet = new Set(fmtTags(p.tags));
+      tagBox.querySelectorAll('.chip').forEach(ch=>{
+        if(tagSet.has(ch.textContent.trim())){
+          ch.classList.add('on');
+        }
+      });
+      document.getElementById('file').value='';
+      editingHint.style.display = 'block';
+      editingHint.textContent = `正在编辑照片 ID：${p.id}（仅修改标题/描述/标签，图片保持不变）`;
+    }
+
+    // tab 切换
+    const tabDiscover = document.getElementById('tabDiscover');
+    const tabMine = document.getElementById('tabMine');
+    const tabLiked = document.getElementById('tabLiked');
+    const tabFavorited = document.getElementById('tabFavorited');
+    const tabCommented = document.getElementById('tabCommented');
+    const viewDiscover = document.getElementById('viewDiscover');
+    const viewMine = document.getElementById('viewMine');
+
+    function setActiveTab(active){
+      [tabDiscover, tabMine, tabLiked, tabFavorited, tabCommented].forEach(btn=>{
+        if(!btn) return;
+        if(btn.id === active) btn.classList.add('on');
+        else btn.classList.remove('on');
+      });
+      // 置顶按钮仅在发现页显示
+      const backTop = document.getElementById('btnBackTop');
+      if(backTop){
+        backTop.style.display = active === 'tabDiscover' ? 'block' : 'none';
+      }
+    }
+
+    function showDiscoverView(){
+      viewDiscover.style.display = '';
+      viewMine.style.display = '';
+      viewDiscover.classList.remove('hide');
+      viewDiscover.classList.add('show');
+      viewMine.classList.remove('show');
+      viewMine.classList.add('hide');
+      setTimeout(()=>{ viewMine.style.display = 'none'; }, 220);
+    }
+
+    async function showMineView(){
+      viewMine.style.display = '';
+      viewDiscover.style.display = '';
+      viewMine.classList.remove('hide');
+      viewMine.classList.add('show');
+      viewDiscover.classList.remove('show');
+      viewDiscover.classList.add('hide');
+      setTimeout(()=>{ viewDiscover.style.display = 'none'; }, 220);
+    }
+
+    tabDiscover.addEventListener('click', ()=>{
+      setActiveTab('tabDiscover');
+      showDiscoverView();
+    });
+
+    async function switchToMine(mode){
+      mineMode = mode;
+      setActiveTab(
+        mode === 'mine' ? 'tabMine' :
+        mode === 'liked' ? 'tabLiked' :
+        mode === 'favorited' ? 'tabFavorited' :
+        'tabCommented'
+      );
+      await showMineView();
+      updateMineTitle();
+      await loadMine();
+    }
+
+    tabMine.addEventListener('click', ()=>{ switchToMine('mine'); });
+    tabLiked.addEventListener('click', ()=>{ switchToMine('liked'); });
+    tabFavorited.addEventListener('click', ()=>{ switchToMine('favorited'); });
+    tabCommented.addEventListener('click', ()=>{ switchToMine('commented'); });
+
+    document.getElementById('btnBackToRandom').addEventListener('click', async ()=>{
+      // 返回随机照片流，不带推荐
+      setToastDiscover('已刷新为随机照片流');
+      const r = await apiGet('/photos/feed');
+      if(!r || r.code!==1) return;
+      baseFeed = shuffle(r.data || []);
+      recFeed = [];
+      historyFeed = [];
+      browseCount = 0;
+      hasRecommended = false;
+      renderDiscover(true);
+    });
+
+    document.getElementById('btnLogout').addEventListener('click', async ()=>{
+      if(!confirm('确定要退出登录吗？')) return;
+      await apiPostForm('/auth/logout', {});
+      location.href = '/login.html';
+    });
+
+    document.getElementById('btnBackTop').addEventListener('click', ()=>{
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
+
+    btnSearch.addEventListener('click', async ()=>{
+      const kw = (searchInput.value || '').trim();
+      if(!kw){
+        await loadFeed();
+        return;
+      }
+      const r = await apiGet(`/photos/search?q=${encodeURIComponent(kw)}`);
+      if(!r || r.code !== 1){
+        return;
+      }
+      const list = r.data || [];
+      baseFeed = list.slice();
+      recFeed = [];
+      historyFeed = [];
+      browseCount = 0;
+      hasRecommended = false;
+      renderDiscover(true);
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
+
+    searchInput.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        btnSearch.click();
+      }
+    });
+
+    (async function init(){
+      renderTagChips();
+      await loadMe();
+      await loadFeed();
+    })();
+  </script>
+</body>
+</html>
+
